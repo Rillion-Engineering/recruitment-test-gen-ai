@@ -24,7 +24,7 @@ A FastAPI-based RAG (Retrieval-Augmented Generation) system using Qdrant for vec
 
 3. **Environment Configuration**
 
-   Create a `.env` file with your Azure OpenAI credentials:
+   Create a `.env` file with your Azure OpenAI credentials (see .example.env for reference):
    ```env
    AZURE_OPENAI_API_KEY=your_api_key
    AZURE_OPENAI_ENDPOINT=your_endpoint
