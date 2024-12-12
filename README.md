@@ -80,10 +80,3 @@ make run
 
 This will start the server in development mode with auto-reload enabled.
 
-
-## Assignments
-
-- [ ] A request has been made to extend the current usecase to support chatbot functionality. How would you do this?
-- [ ] A request for the customers is that the system is perceived as too slow. What would you do to improve the perceived latency?
-- [ ] A request for the customers is that the system is not able to answer questions about the documents. What would you do to improve the performance?
-- [ ] We want to ensure production readiness. What parts of the systems would you change to ensure production readiness? Is there anything you would add?
