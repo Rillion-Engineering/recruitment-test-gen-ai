@@ -5,21 +5,21 @@ A FastAPI-based RAG (Retrieval-Augmented Generation) system using Qdrant for vec
 ## Prerequisites
 
 - Python 3.11+
-- Poetry
+- uv
 - Docker
 - Azure OpenAI API access
 
 ## Setup
 
-1. **Create and activate virtual environment**
+1. **Activate project local virtual environment**
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   source .venv/bin/activate
    ```
 
 2. **Install dependencies**
    ```bash
-   poetry install
+   uv install
    ```
 
 3. **Environment Configuration**
