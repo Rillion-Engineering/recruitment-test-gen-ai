@@ -6,7 +6,7 @@ from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.llms.azure_openai import AzureOpenAI
 from app.api.endpoints import query
 from llama_index.core import Settings as LlamaIndexSettings
-from qdrant_client import QdrantClient
+from qdrant_client import AsyncQdrantClient
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.core import VectorStoreIndex
 
@@ -37,13 +37,13 @@ async def lifespan(app: FastAPI):
     LlamaIndexSettings.embed_model = embedding_model
 
     # Set up sync Qdrant client and vector store
-    qdrant_client = QdrantClient(
+    qdrant_client = AsyncQdrantClient(
         url=settings.QDRANT_URL if settings.QDRANT_URL else None,
         port=int(settings.QDRANT_PORT) if settings.QDRANT_PORT is not None else None,
         timeout=30,
     )
     vector_store = QdrantVectorStore(
-        client=qdrant_client, collection_name=settings.QDRANT_COLLECTION_NAME
+        aclient=qdrant_client, collection_name=settings.QDRANT_COLLECTION_NAME
     )
 
     index = VectorStoreIndex.from_vector_store(vector_store=vector_store)

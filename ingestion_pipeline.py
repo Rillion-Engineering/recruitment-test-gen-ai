@@ -1,5 +1,5 @@
 from pathlib import Path
-from qdrant_client import QdrantClient
+from qdrant_client import AsyncQdrantClient
 from llama_index.core.ingestion import IngestionPipeline
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.core.node_parser import SentenceSplitter
@@ -21,12 +21,15 @@ def put_documents_in_vector_store(
     num_workers: int,
 ):
     """Create and return a VectorStoreIndex from the given documents directory and Qdrant client."""
-    qdrant_url = "127.0.0.1"
+    qdrant_url = "http://127.0.0.1"
     qdrant_port = 6333
-    client = QdrantClient(host=qdrant_url, port=qdrant_port)
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+    aclient = AsyncQdrantClient(
+        host=qdrant_url, port=qdrant_port, api_key=qdrant_api_key
+    )
     # Create vector store
     vector_store = QdrantVectorStore(
-        client=client, collection_name=qdrant_collection_name
+        aclient=aclient, collection_name=qdrant_collection_name
     )
     print("Vector store created successfully")
 
