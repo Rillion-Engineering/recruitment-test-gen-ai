@@ -3,17 +3,21 @@ from app.models.query import QueryRequest, QueryResponse
 from llama_index.core.query_engine import BaseQueryEngine
 from llama_index.core.indices import VectorStoreIndex
 from llama_index.core.base.response.schema import Response
+from typing import cast
+
 router = APIRouter()
 
-@router.post("/query", 
+
+@router.post(
+    "/query",
     response_model=QueryResponse,
     summary="Query the RAG system",
-    description="Send a query to the RAG system and receive an answer with sources"
+    description="Send a query to the RAG system and receive an answer with sources",
 )
 async def query_rag(
     query_request: QueryRequest,
     request: Request,
-) -> QueryResponse:
+) -> QueryResponse | HTTPException:
     """
     Query the RAG system with the following parameters:
 
@@ -24,27 +28,27 @@ async def query_rag(
     Returns:
         QueryResponse: A query response representing the answer and sources where the sources are the nodes in the vector store
     """
-    index: VectorStoreIndex = request.app.state.index
-    query_engine: BaseQueryEngine = index.as_query_engine(llm=request.app.state.mini_language_model)
+    index = cast(VectorStoreIndex, request.app.state.index)
+    query_engine: BaseQueryEngine = index.as_query_engine(
+        llm=request.app.state.mini_language_model
+    )
     try:
-        response: Response = query_engine.query(query_request.query)
+        response: Response = await query_engine.aquery(query_request.query)
         sources = [
             {
                 "id": source.node.id_,
                 "metadata": source.node.metadata,
                 "score": source.score,
-                "text": source.node.text
+                "text": source.node.text,
             }
             for source in response.source_nodes
         ]
-        return QueryResponse(
-            answer=response.response,
-            sources=sources
-        )
+        return QueryResponse(answer=response.response, sources=sources)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy"} 
+    return {"status": "healthy"}

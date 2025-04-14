@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.llms.azure_openai import AzureOpenAI
@@ -21,7 +20,7 @@ async def lifespan(app: FastAPI):
         deployment_name="gpt-4o-mini",
         azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
         api_key=settings.AZURE_OPENAI_API_KEY.get_secret_value(),
-        api_version="2023-03-15-preview",
+        api_version="2025-03-01-preview",
         timeout=15,
         additional_kwargs={"stream_options": {"include_usage": True}},
     )
@@ -30,7 +29,7 @@ async def lifespan(app: FastAPI):
         deployment_name="text-embedding-3-large",
         azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
         api_key=settings.AZURE_OPENAI_API_KEY.get_secret_value(),
-        api_version="2023-03-15-preview",
+        api_version="2025-03-01-preview",
     )
 
     # Configure LlamaIndex settings
@@ -81,22 +80,12 @@ def create_app():
     print("| redoc: http://0.0.0.0:8003/redoc")
     print("| swagger: http://0.0.0.0:8003/docs")
     print("\n\n")
+
     app = FastAPI(
         title="Mindcraft Test API",
         description="This is a test API for recruitment purposes",
         lifespan=lifespan,
         version="0.1.0",
-    )
-
-    # CORS middleware configuration
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-        expose_headers=["*"],  # To explicitly expose conversation_id header
-        max_age=3600,  # Cache preflight requests for 1 hour
     )
     app.include_router(query.router, prefix=settings.API_V1_STR)
     return app

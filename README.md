@@ -49,15 +49,15 @@ A FastAPI-based RAG (Retrieval-Augmented Generation) system using Qdrant for vec
    ```
 
    The API will be available at:
-   - API Endpoint: http://localhost:8000/api/v1
-   - Swagger Documentation: http://localhost:8000/docs
-   - ReDoc Documentation: http://localhost:8000/redoc
+   - API Endpoint: http://localhost:8003/api/v1
+   - Swagger Documentation: http://localhost:8003/docs
+   - ReDoc Documentation: http://localhost:8003/redoc
 
 ## API Usage
 
 Send queries to the RAG system using:
 ```bash
-curl -X POST "http://localhost:8000/api/v1/query" \
+curl -X POST "http://localhost:8003/api/v1/query" \
      -H "Content-Type: application/json" \
      -d '{"query": "your question here"}'
 ```
@@ -69,6 +69,7 @@ curl -X POST "http://localhost:8000/api/v1/query" \
   - `core/`: Core configuration
   - `models/`: Pydantic models
 - `data/`: Document storage directory
+- `images/`: images for readme
 - `parse_documents.py`: Document ingestion script
 
 ## Development
@@ -80,3 +81,8 @@ make run
 
 This will start the server in development mode with auto-reload enabled.
 
+## Current functionality
+
+Current functionality with query endpoint is illustrated here.
+
+![Query Endpoint Functionality](images/query_endpoint_functionality.png)
