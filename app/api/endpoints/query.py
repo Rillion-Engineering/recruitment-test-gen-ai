@@ -15,7 +15,6 @@ def _convert_nodes_to_sources(node_results):
         payload = point.payload
         if not payload:
             continue
-
         node_content = json.loads(payload.get("_node_content", "{}"))
 
         if not node_content:
@@ -47,6 +46,43 @@ def _convert_nodes_to_sources(node_results):
     return sources
 
 
+async def search_knowledge_base(
+    query: str,
+    embedding_client: AsyncAzureOpenAI,
+    async_qdrant_client: AsyncQdrantClient,
+) -> list[dict]:
+    embedding_result = await embedding_client.embeddings.create(
+        input=query, model="text-embedding-3-large"
+    )
+    embedding = embedding_result.data[0].embedding
+    print(f"embedding of len {len(embedding)}")
+    node_results = await async_qdrant_client.query_points(
+        collection_name=settings.QDRANT_COLLECTION_NAME,
+        query=embedding,
+        limit=3,
+    )
+    sources = _convert_nodes_to_sources(node_results)
+    print(f"retrieved {len(node_results.points)} results and {len(sources)} nodes left")
+    return sources
+
+
+async def run_openai_query(
+    query: str,
+    system_prompt: str,
+    async_openai_client: AsyncAzureOpenAI,
+) -> str:
+    openai_messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": query},
+    ]
+    response = await async_openai_client.chat.completions.create(
+        model="gpt-4o",
+        messages=openai_messages,
+        max_completion_tokens=512,
+    )
+    return response.choices[0].message.content
+
+
 @router.post(
     "/query",
     response_model=QueryResponse,
@@ -68,21 +104,15 @@ async def query_rag(
         QueryResponse: A query response representing the answer and sources where the sources are the nodes in the vector store
     """
     embedding_client = cast(AsyncAzureOpenAI, request.app.state.openai_async_embedder)
-    async_open_ai_client = cast(AsyncAzureOpenAI, request.app.state.openai_async_client)
+    async_openai_client = cast(AsyncAzureOpenAI, request.app.state.openai_async_client)
     async_qdrant_client = cast(AsyncQdrantClient, request.app.state.qdrant_client)
 
-    embedding_result = await embedding_client.embeddings.create(
-        input=query_request.query, model="text-embedding-3-large"
+    sources = await search_knowledge_base(
+        query=query_request.query,
+        embedding_client=embedding_client,
+        async_qdrant_client=async_qdrant_client,
     )
-    embedding = embedding_result.data[0].embedding
-    print("retrieved embedding")
-    node_results = await async_qdrant_client.query_points(
-        collection_name=settings.QDRANT_COLLECTION_NAME,
-        query=embedding,
-        limit=3,
-    )
-    sources = _convert_nodes_to_sources(node_results)
-    print(f"retrieved {len(sources)} nodes")
+
     system_prompt = """
 You are a helpful assistant. 
 You have access to a the following sources of information based on the users question.
@@ -92,16 +122,11 @@ SOURCES:
 """
     system_prompt += "\n\n".join([source["content"] for source in sources])
 
-    openai_messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": query_request.query},
-    ]
-    response = await async_open_ai_client.chat.completions.create(
-        model="gpt-4o",
-        messages=openai_messages,
-        max_completion_tokens=512,
+    response = await run_openai_query(
+        query=query_request.query,
+        system_prompt=system_prompt,
+        async_openai_client=async_openai_client,
     )
-    response = response.choices[0].message.content
     return QueryResponse(answer=response, sources=sources)
 
 
