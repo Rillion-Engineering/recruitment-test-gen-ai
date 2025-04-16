@@ -8,6 +8,7 @@ A FastAPI-based RAG (Retrieval-Augmented Generation) system using Qdrant for vec
 - uv
 - Docker
 - Azure OpenAI API access
+- Local Qdrant docker
 
 ## Setup
 
