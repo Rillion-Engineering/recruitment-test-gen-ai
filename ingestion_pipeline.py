@@ -1,5 +1,5 @@
 from pathlib import Path
-from qdrant_client import AsyncQdrantClient
+from qdrant_client import QdrantClient
 from llama_index.core.ingestion import IngestionPipeline
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.core.node_parser import SentenceSplitter
@@ -24,12 +24,10 @@ def put_documents_in_vector_store(
     qdrant_url = "http://127.0.0.1"
     qdrant_port = 6333
     qdrant_api_key = os.getenv("QDRANT_API_KEY")
-    aclient = AsyncQdrantClient(
-        host=qdrant_url, port=qdrant_port, api_key=qdrant_api_key
-    )
+    client = QdrantClient(url=qdrant_url, port=qdrant_port, api_key=qdrant_api_key)
     # Create vector store
     vector_store = QdrantVectorStore(
-        aclient=aclient, collection_name=qdrant_collection_name
+        client=client, collection_name=qdrant_collection_name
     )
     print("Vector store created successfully")
 
@@ -42,7 +40,7 @@ def put_documents_in_vector_store(
     )
     # Load documents
     reader = SimpleDirectoryReader(input_dir=documents_dir)
-    documents = reader.load_data(show_progress=True, num_workers=num_workers)
+    documents = reader.load_data(show_progress=True, num_workers=1)
 
     print(f"Loaded {len(documents)} documents from {documents_dir}")
     docstore = SimpleDocumentStore()
@@ -59,7 +57,7 @@ def put_documents_in_vector_store(
         docstore=docstore,
         vector_store=vector_store,
     )
-    pipeline.run(documents=documents, num_workers=num_workers, show_progress=True)
+    pipeline.run(documents=documents, num_workers=1, show_progress=True)
 
 
 if __name__ == "__main__":
