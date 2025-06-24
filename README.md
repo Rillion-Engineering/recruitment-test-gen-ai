@@ -14,13 +14,14 @@ A FastAPI-based RAG (Retrieval-Augmented Generation) system using Qdrant for vec
 
 1. **Activate project local virtual environment**
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate
+   python -m venv .venv && \
+   source .venv/bin/activate && \
+   pip install uv
    ```
 
 2. **Install dependencies**
    ```bash
-   uv install
+   uv sync
    ```
 
 3. **Environment Configuration**
