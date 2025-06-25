@@ -18,11 +18,10 @@ def put_documents_in_vector_store(
     qdrant_collection_name: str,
     chunk_size: int,
     overlap: int,
-    num_workers: int,
 ):
     """Create and return a VectorStoreIndex from the given documents directory and Qdrant client."""
-    qdrant_url = "http://127.0.0.1"
-    qdrant_port = 6333
+    qdrant_url = os.getenv("QDRANT_URL","http://127.0.0.1")
+    qdrant_port = os.getenv("QDRANT_PORT",6333)
     qdrant_api_key = os.getenv("QDRANT_API_KEY")
     client = QdrantClient(url=qdrant_url, port=qdrant_port, api_key=qdrant_api_key)
     # Create vector store
@@ -49,9 +48,7 @@ def put_documents_in_vector_store(
         name=f"{documents_dir}_pipeline",
         project_name=f"{qdrant_url}_{qdrant_collection_name}_project",
         transformations=[
-            SentenceSplitter(
-                chunk_size=chunk_size, chunk_overlap=overlap
-            ),  # Using default chunk size and overlap
+            SentenceSplitter(chunk_size=chunk_size, chunk_overlap=overlap),
             embedding_model,
         ],
         docstore=docstore,
@@ -66,5 +63,4 @@ if __name__ == "__main__":
         qdrant_collection_name="data",
         chunk_size=512,
         overlap=20,
-        num_workers=4,
     )
