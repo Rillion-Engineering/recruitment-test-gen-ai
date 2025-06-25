@@ -40,10 +40,10 @@ A FastAPI-based RAG (Retrieval-Augmented Generation) system using Qdrant for vec
 5. **Load Documents**
     Request documents from the team and place them in the `data/` directory, then run:
    ```bash
-   python parse_documents.py
+   python ingestion_pipeline.py
    ```
 
-   This will process your documents and store them in Qdrant (see `parse_documents.py` for configuration options).
+   This will process your documents and store them in Qdrant (see `ingestion_pipeline.py` for configuration options).
 
 6. **Run the API**
    ```bash

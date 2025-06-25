@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     QDRANT_URL: str = "127.0.0.1"
     QDRANT_PORT: int = 6333
-    QDRANT_COLLECTION_NAME: str = "live_data_alias"
-    AZURE_OPENAI_ENDPOINT: str = "https://devrillionopenai.openai.azure.com"
+    QDRANT_COLLECTION_NAME: str = "data"
+    AZURE_OPENAI_ENDPOINT: str = "https://deveurillionopenai.openai.azure.com"
     AZURE_API_VERSION: str = "2025-03-01-preview"
     # CORS Configuration
     BACKEND_CORS_ORIGINS: list[str] = [
